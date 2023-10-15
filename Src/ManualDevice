@@ -1,0 +1,5 @@
+from ElectronicDevice import ElectronicDevice
+
+class ManualDevice(ElectronicDevice):
+    def __init__(self, name, energy_cost, quantity):
+        super().__init__(name, energy_cost, quantity, False)
