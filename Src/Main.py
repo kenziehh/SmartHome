@@ -14,7 +14,6 @@ if __name__ == "__main__":
     # Create rooms and add devices to them
     living_room = Room("Living Room")
     living_room.add_device(tv, 1)
-
     bedroom = Room("Bedroom")
     bedroom.add_device(ac, 1)
     bedroom.add_device(lamp, 1)
@@ -26,8 +25,9 @@ if __name__ == "__main__":
     bathroom.add_device(lamp, 1)
     # Create and simulate the smart home
     smart_home = Smarthome()
-    smart_home.add_room(living_room)
+    # smart_home.add_room(living_room)
     smart_home.add_room(bedroom)
     smart_home.add_room(terrace)
+    smart_home.add_room(bathroom)
     
     smart_home.simulate_24_hours()
