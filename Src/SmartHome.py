@@ -12,7 +12,7 @@ class Smarthome:
         }
         self.ac_active = False  # Tambahkan atribut ini untuk melacak status AC
         self.lamp_active = False  # Tambahkan atribut ini untuk melacak status lampu
-
+        self.total_energy_consumption_day = 0
 
     def add_room(self, room):
         self.rooms.append(room)
@@ -89,11 +89,16 @@ class Smarthome:
             for minute in range(60):
                 self.current_condition["time"] = (hour, minute)
                 self.control_ac()
-                
                 self.control_lamp()
                 for room in self.rooms:
                     room.calculate_total_energy_consumption(self.current_condition)
                 total_energy_consumption = sum(room.total_energy_consumption for room in self.rooms)
+                self.total_energy_consumption_day += total_energy_consumption / 60  # Menghitung total konsumsi per menit
                 print(f"Time: {hour:02d}:{minute:02d}, Temperature: {int(self.current_condition['temperature'])}°C, Total Energy Consumption: {total_energy_consumption} Watt")
                 time.sleep(0.01)  # Simulate 1 minute delay
+
+        # Konversi total konsumsi energi harian ke kWh
+        total_energy_consumption_day_kwh = self.total_energy_consumption_day / 1000
+        print(f"Total Energy Consumption for the Day: {total_energy_consumption_day_kwh:.2f} kWh")
+
                 
