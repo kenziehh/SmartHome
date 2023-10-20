@@ -1,9 +1,10 @@
 import time
-
 from AutomaticDevice import AutomaticDevice
 from ElectronicDevice import ElectronicDevice
 from Room import Room
 from SmartHome import Smarthome
+import pandas as pd
+
 
 if __name__ == "__main__":
     # Create electronic devices
@@ -23,11 +24,16 @@ if __name__ == "__main__":
     
     bathroom = Room("Bathroom")
     bathroom.add_device(lamp, 1)
+    
+    kitchen = Room("Kitchen")
+    kitchen.add_device(refridgerator,1)
     # Create and simulate the smart home
     smart_home = Smarthome()
     # smart_home.add_room(living_room)
     smart_home.add_room(bedroom)
     smart_home.add_room(terrace)
     smart_home.add_room(bathroom)
+    smart_home.add_room(kitchen)
     
-    smart_home.simulate_24_hours()
+    # smart_home.simulate_24_hours()
+    smart_home.simulate_month()
