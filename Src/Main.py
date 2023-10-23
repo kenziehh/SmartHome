@@ -35,5 +35,4 @@ if __name__ == "__main__":
     smart_home.add_room(bathroom)
     smart_home.add_room(kitchen)
     
-    # smart_home.simulate_24_hours()
-    smart_home.simulate_month()
+    smart_home.simulate_24_hours()
