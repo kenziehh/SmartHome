@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import time
 
 from AutomaticDevice import AutomaticDevice
@@ -74,26 +75,87 @@ class Smarthome:
                     elif hour >= 5 and hour < 18:
                         device.active = False  # Matikan lampu saat jam 5:00
 
+    # def simulate_24_hours(self):
+    #     for hour in range(24):
+    #         for minute in range(60):
+    #             self.current_condition["time"] = (hour, minute)
+    #             self.simulate_temperature_with_noise()
+    #             self.control_ac()
+    #             self.control_lamp()
+    #             if 6 <= hour < 18:
+    #                 # Siang hari - suhu naik
+    #                 self.current_condition["temperature"] += 0.02
+    #             else:
+    #                 # Malam hari - suhu turun
+    #                 self.current_condition["temperature"] -= 0.02
+    #             for room in self.rooms:
+    #                 room.calculate_total_energy_consumption(self.current_condition)
+    #             total_energy_consumption = sum(room.total_energy_consumption for room in self.rooms)
+    #             self.total_energy_consumption_day += total_energy_consumption / 60  # Menghitung total konsumsi per menit
+    #             print(f"Time: {hour:02d}:{minute:02d}, Temperature: {int(self.current_condition['temperature'])}°C, Total Energy Consumption: {total_energy_consumption} Watt")
+    #             time.sleep(0.01)  # Simulate 1 minute delay
+
+    #     # Konversi total konsumsi energi harian ke kWh
+    #     total_energy_consumption_day_kwh = self.total_energy_consumption_day / 1000
+    #     print(f"Total Energy Consumption for the Day: {total_energy_consumption_day_kwh:.2f} kWh")
+    # def simulate_24_hours(self):
+    #     data = []  # Membuat list kosong untuk menyimpan data simulasi
+
+    #     for hour in range(24):
+    #         for minute in range(60):
+    #             self.current_condition["time"] = (hour, minute)
+    #             self.simulate_temperature_with_noise()
+    #             self.control_ac()
+    #             self.control_lamp()
+    #             for room in self.rooms:
+    #                 room.calculate_total_energy_consumption(self.current_condition)
+    #             total_energy_consumption = sum(room.total_energy_consumption for room in self.rooms)
+    #             self.total_energy_consumption_day += total_energy_consumption / 60  # Menghitung total konsumsi per menit
+
+    #             # Menambahkan data saat ini ke dalam list data
+    #             data.append({
+    #                 "Hour": hour,
+    #                 "Minute": minute,
+    #                 "Temperature": self.current_condition["temperature"],
+    #                 "Energy Consumption": total_energy_consumption
+    #             })
+
+    #             time.sleep(0.01)  # Simulate 1 minute delay
+
+    #     # Konversi total konsumsi energi harian ke kWh
+    #     total_energy_consumption_day_kwh = self.total_energy_consumption_day / 1000
+    #     print(f"Total Energy Consumption for the Day: {total_energy_consumption_day_kwh:.2f} kWh")
+
+    #     # Buat DataFrame dari data
+    #     df = pd.DataFrame(data)
+
+    #     # Simpan DataFrame ke dalam file CSV
+    #     df.to_csv("simulation_data.csv", index=False)
+
     def simulate_24_hours(self):
+        data = []  # Membuat list kosong untuk menyimpan data simulasi
+
         for hour in range(24):
             for minute in range(60):
                 self.current_condition["time"] = (hour, minute)
                 self.simulate_temperature_with_noise()
                 self.control_ac()
                 self.control_lamp()
-                if 6 <= hour < 18:
-                    # Siang hari - suhu naik
-                    self.current_condition["temperature"] += 0.02
-                else:
-                    # Malam hari - suhu turun
-                    self.current_condition["temperature"] -= 0.02
                 for room in self.rooms:
                     room.calculate_total_energy_consumption(self.current_condition)
                 total_energy_consumption = sum(room.total_energy_consumption for room in self.rooms)
                 self.total_energy_consumption_day += total_energy_consumption / 60  # Menghitung total konsumsi per menit
-                print(f"Time: {hour:02d}:{minute:02d}, Temperature: {int(self.current_condition['temperature'])}°C, Total Energy Consumption: {total_energy_consumption} Watt")
+
                 time.sleep(0.01)  # Simulate 1 minute delay
 
         # Konversi total konsumsi energi harian ke kWh
         total_energy_consumption_day_kwh = self.total_energy_consumption_day / 1000
-        print(f"Total Energy Consumption for the Day: {total_energy_consumption_day_kwh:.2f} kWh")
+
+        # Dapatkan tanggal saat ini
+        current_date = pd.Timestamp.now().date()
+
+        # Buat DataFrame dengan satu baris data
+        data = pd.DataFrame({'Date': [current_date], 'Energy Consumption (kWh)': [total_energy_consumption_day_kwh]})
+
+        # Simpan DataFrame ke dalam file CSV
+        data.to_csv("daily_energy_consumption.csv", index=False)
