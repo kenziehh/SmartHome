@@ -14,6 +14,8 @@ class Smarthome:
         self.ac_active = False  # Tambahkan atribut ini untuk melacak status AC
         self.lamp_active = False  # Tambahkan atribut ini untuk melacak status lampu
         self.total_energy_consumption_day = 0
+        self.daily_temperature_high = []  # List untuk menyimpan suhu maksimum harian
+        self.daily_temperature_low = []  # List untuk menyimpan suhu minimum harian
 
     def add_room(self, room):
         self.rooms.append(room)
@@ -31,7 +33,7 @@ class Smarthome:
             self.current_condition["temperature"] += temperature_noise
 
         # Pastikan suhu tidak naik di atas 30°C atau turun di bawah 10°C
-        self.current_condition["temperature"] = np.clip(self.current_condition["temperature"], 10, 31)
+        self.current_condition["temperature"] = np.clip(self.current_condition["temperature"], 18, 32)
     
     def control_ac(self):
         if 9 <= self.current_condition["time"][0] < 14:
@@ -71,39 +73,45 @@ class Smarthome:
                 if 6 <= hour < 15:
                     # Siang hari - suhu naik
                     self.current_condition["temperature"] += 0.02
-                elif 20<= hour <=23:
+                elif 20 <= hour <= 23:
                     # Malam hari - suhu turun
                     self.current_condition["temperature"] -= 0.02
-                else :
+                else:
                     pass
                 for room in self.rooms:
                     room.calculate_total_energy_consumption(self.current_condition)
                 total_energy_consumption = sum(room.total_energy_consumption for room in self.rooms)
                 self.total_energy_consumption_day += total_energy_consumption / 60  # Menghitung total konsumsi per menit
+
+                # Simpan suhu maksimum dan minimum harian
+                if minute == 0:
+                    self.daily_temperature_high.append(self.current_condition["temperature"])
+                    self.daily_temperature_low.append(self.current_condition["temperature"])
+
+                # Update suhu maksimum dan minimum harian
+                if self.current_condition["temperature"] > self.daily_temperature_high[-1]:
+                    self.daily_temperature_high[-1] = self.current_condition["temperature"]
+                elif self.current_condition["temperature"] < self.daily_temperature_low[-1]:
+                    self.daily_temperature_low[-1] = self.current_condition["temperature"]
+
                 print(f"Time: {hour:02d}:{minute:02d}, Temperature: {int(self.current_condition['temperature'])}°C, Total Energy Consumption: {total_energy_consumption} Watt")
                 time.sleep(0.01)  # Simulate 1 minute delay
 
         # Konversi total konsumsi energi harian ke kWh
         total_energy_consumption_day_kwh = self.total_energy_consumption_day / 1000
         print(total_energy_consumption_day_kwh)
+
         # Dapatkan tanggal saat ini
         current_date = pd.Timestamp.now().date()
 
         # Buat DataFrame dengan satu baris data
-        data = pd.DataFrame({'Date': [current_date], 'Energy Consumption (kWh)': [total_energy_consumption_day_kwh]})
-
-        # Simpan DataFrame ke dalam file CSV
-        data.to_csv("daily_energy_consumption.csv", index=False)
+        data = pd.DataFrame({'Date': [current_date], 'Energy Consumption (kWh)': [total_energy_consumption_day_kwh],
+                             'Temperature High (°C)': [max(self.daily_temperature_high)],
+                             'Temperature Low (°C)': [min(self.daily_temperature_low)]})
 
         try:
-          existing_data = pd.read_csv("daily_energy_consumption.csv")
-          # Jika file CSV sudah ada, append data baru
-          updated_data = pd.concat([existing_data, data], ignore_index=True)
-          updated_data.to_csv("daily_energy_consumption.csv", index=False)
+            existing_data = pd.read_csv("daily_energy_consumption.csv")
+            updated_data = pd.concat([existing_data, data], ignore_index=True)
+            updated_data.to_csv("daily_energy_consumption.csv", index=False, float_format='%.3f')
         except FileNotFoundError:
-          # Jika file CSV belum ada, buat file baru
-          data.to_csv("daily_energy_consumption.csv", index=False)
-        
-        
-        
-        
+            data.to_csv("daily_energy_consumption.csv", index=False, float_format='%.3f')
