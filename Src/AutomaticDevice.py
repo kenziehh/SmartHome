@@ -13,3 +13,4 @@ class AutomaticDevice(ElectronicDevice):
         elif not self.active and self.control_condition(current_condition):
             self.active = True
         return self.active
+    
