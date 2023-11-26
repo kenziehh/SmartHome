@@ -44,12 +44,16 @@ class Smarthome:
         self.current_condition["temperature"] = np.clip(self.current_condition["temperature"], min_temp, max_temp)
 
     def control_ac(self):
+        ac_was_on = False  # Flag to track AC status in the previous iteration
         for room in self.rooms:
             for device, quantity in room.devices.items():
                 if isinstance(device, AutomaticDevice) and device.name == "Air Conditioner":
                     if device.is_active(self.current_condition):
-                        self.total_ac_usage_time += 1  
+                        self.total_ac_usage_time += 1
                         self.current_condition["temperature"] -= 0.05
+                    # else:
+                    #     self.total_ac_usage_time-=1
+                            
 
     def control_lamp(self):
         hour = self.current_condition["time"][0]
@@ -111,16 +115,17 @@ class Smarthome:
         
         total_energy_consumption_day_kwh = self.total_energy_consumption_day / 1000
         print(f"KWh: {total_energy_consumption_day_kwh}")
-        print(f"Total AC Usage Time: {self.total_ac_usage_time} minutes")
+        print(f"Total AC Usage Time: {self.total_ac_usage_time/2} minutes")
         current_date = pd.Timestamp.now().date()
-        
+        # self.total_ac_usage_time/2
         data = pd.DataFrame({
             'Date': [current_date],
             'Energy Consumption (kWh)': [total_energy_consumption_day_kwh],
-            'Temperature High (°C)': [max(self.daily_temperature_high)],
-            'Temperature Low (°C)': [min(self.daily_temperature_low)],
-            'Total AC Usage Time (minutes)': [self.total_ac_usage_time], 
+            'Temperature High': [max(self.daily_temperature_high)],
+            'Temperature Low': [min(self.daily_temperature_low)],
+            'Total AC Usage Time (minutes)': [self.total_ac_usage_time / 2],
         })
+
         try:
             existing_data = pd.read_csv("daily_energy_consumption.csv")
             updated_data = pd.concat([existing_data, data], ignore_index=True)

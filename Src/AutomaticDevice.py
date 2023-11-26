@@ -14,3 +14,12 @@ class AutomaticDevice(ElectronicDevice):
             self.active = True
         return self.active
     
+    def turn_on(self, current_conditio):
+        self.active = True
+        return self.active
+    
+    def turn_off(self, current_condition):
+        self.active = False
+        return self.active
+    
+    
